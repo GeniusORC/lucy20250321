@@ -3,6 +3,8 @@ from itertools import zip_longest
 from typing import Optional
 
 from torch import Tensor
+import numpy as np
+import torch
 
 from mmpose.registry import MODELS
 from mmpose.utils.typing import (ConfigType, InstanceList, OptConfigType,
@@ -151,9 +153,25 @@ class TopdownPoseEstimator(BasePoseEstimator):
             input_scale = data_sample.metainfo['input_scale']
             input_size = data_sample.metainfo['input_size']
 
-            pred_instances.keypoints[..., :2] = \
-                pred_instances.keypoints[..., :2] / input_size * input_scale \
-                + input_center - 0.5 * input_scale
+            # 将所有变量转换为 numpy 数组
+            if isinstance(input_center, torch.Tensor):
+                input_center = input_center.cpu().numpy()
+            if isinstance(input_scale, torch.Tensor):
+                input_scale = input_scale.cpu().numpy()
+            input_size = np.array(input_size)
+
+            # 直接使用 numpy 数组进行计算
+            if isinstance(pred_instances.keypoints, torch.Tensor):
+                keypoints = pred_instances.keypoints[..., :2].cpu().numpy()
+                keypoints = keypoints / input_size * input_scale + input_center - 0.5 * input_scale
+                pred_instances.keypoints[..., :2] = torch.from_numpy(keypoints).to(pred_instances.keypoints.device)
+            else:
+                keypoints = pred_instances.keypoints[..., :2]
+                # 使用 numpy 数组进行计算
+                keypoints = np.array(keypoints)
+                keypoints = keypoints / input_size * input_scale + input_center - 0.5 * input_scale
+                pred_instances.keypoints[..., :2] = keypoints
+
             if 'keypoints_visible' not in pred_instances:
                 pred_instances.keypoints_visible = \
                     pred_instances.keypoint_scores

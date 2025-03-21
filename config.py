@@ -84,6 +84,20 @@ LEFT_KNEE_IDX = 13
 RIGHT_KNEE_IDX = 14
 LEFT_HIP_IDX = 11
 RIGHT_HIP_IDX = 12
+LEFT_SHOULDER_IDX = 5
+RIGHT_SHOULDER_IDX = 6
+NOSE_IDX = 0
+
+# 姿态分析参数
+NORMAL_HEAD_TILT_RANGE = (0, 2)  # 头部侧倾角度范围（度）
+NORMAL_HEAD_ROTATION_RANGE = (0, 5)  # 头部旋转角度范围（度）
+NORMAL_SHOULDER_TILT_RANGE = (0, 2)  # 肩部倾斜角度范围（度）
+NORMAL_BACK_ANGLE_RANGE = (0, 39)  # 背部角度范围（度）
+NORMAL_ABDOMINAL_OBESITY_RANGE = (0, 35)  # 腹部肥胖度范围（百分比）
+NORMAL_SIDE_MEDIAN_RANGE = (175, 185)  # 侧中位角度范围（度）
+NORMAL_LEG_ANGLE_RANGE = (177, 183)  # 腿型角度范围（度）
+NORMAL_KNEE_ANGLE_RANGE = (175, 185)  # 膝关节角度范围（度）
+NORMAL_FOOT_ANGLE_RANGE = (-5, 11)  # 足八字角度范围（度）
 
 # 设置matplotlib支持中文显示
 def setup_chinese_font():
@@ -258,4 +272,114 @@ CUSTOM_CSS = """
         border-radius: 0.5rem;
     }
 </style>
-""" 
+"""
+
+# 步态分析标准参考值
+
+# 步宽范围 (厘米)
+STEP_WIDTH_RANGES = {
+    'normal': (7, 9),  # 正常范围
+    'mild': (9, 11),   # 轻度异常
+    'moderate': (11, 13),  # 中度异常
+    'severe': (13, float('inf'))  # 重度异常
+}
+
+# 步长范围 (厘米)
+STEP_LENGTH_RANGES = {
+    'normal': (50, 80),  # 正常范围
+    'mild': (42.5, 47.5),  # 轻度异常下限
+    'mild_upper': (73.5, 80.5),  # 轻度异常上限
+    'moderate': (35, 42.5),  # 中度异常下限
+    'moderate_upper': (80.5, 91),  # 中度异常上限
+    'severe': (0, 35),  # 重度异常下限
+    'severe_upper': (91, float('inf'))  # 重度异常上限
+}
+
+# 跨步长范围 (厘米)
+STRIDE_LENGTH_RANGES = {
+    'normal': (120, 160),  # 正常范围
+    'mild': (140, 150),  # 轻度异常
+    'moderate': (150, 160),  # 中度异常
+    'severe': (160, float('inf'))  # 重度异常
+}
+
+# 步频范围 (步/分)
+CADENCE_RANGES = {
+    'normal': (95, 125),  # 正常范围
+    'mild': (70, 95),  # 轻度异常下限
+    'mild_upper': (95, 100),  # 轻度异常上限
+    'moderate': (60, 70),  # 中度异常下限
+    'moderate_upper': (100, 110),  # 中度异常上限
+    'severe': (0, 60),  # 重度异常下限
+    'severe_upper': (110, float('inf'))  # 重度异常上限
+}
+
+# 左右步长对称性差异范围 (厘米)
+STEP_LENGTH_SYMMETRY_RANGES = {
+    'normal': (0, 2),  # 正常范围
+    'mild': (2, 5),  # 轻度异常
+    'moderate': (5, 10),  # 中度异常
+    'severe': (10, float('inf'))  # 重度异常
+}
+
+# 支撑相时间差异范围 (与正常范围的百分比)
+SUPPORT_TIME_DIFF_RANGES = {
+    'normal': (0, 20),  # 正常范围
+    'mild': (20, 40),  # 轻度异常
+    'moderate': (40, 60),  # 中度异常
+    'severe': (60, float('inf'))  # 重度异常
+}
+
+# 摆动相时间差异范围 (与正常范围的百分比)
+SWING_TIME_DIFF_RANGES = {
+    'normal': (0, 20),  # 正常范围
+    'mild': (20, 40),  # 轻度异常
+    'moderate': (40, 60),  # 中度异常
+    'severe': (60, float('inf'))  # 重度异常
+}
+
+# 骨盆旋转角度差异范围 (度)
+PELVIC_ROTATION_RANGES = {
+    'normal': (0, 3),  # 正常范围
+    'mild': (3, 5),  # 轻度异常
+    'moderate': (5, 10),  # 中度异常
+    'severe': (10, float('inf'))  # 重度异常
+}
+
+# 膝关节屈伸角度差异范围 (度)
+KNEE_FLEXION_RANGES = {
+    'normal': (0, 5),  # 正常范围
+    'mild': (5, 10),  # 轻度异常
+    'moderate': (10, 20),  # 中度异常
+    'severe': (20, float('inf'))  # 重度异常
+}
+
+# 踝关节背屈/跖屈角度差异范围 (度)
+ANKLE_FLEXION_RANGES = {
+    'normal': (0, 10),  # 正常范围
+    'mild': (10, 15),  # 轻度异常
+    'moderate': (15, 30),  # 中度异常
+    'severe': (30, float('inf'))  # 重度异常
+}
+
+# 身体重心转移范围 (占步长的百分比)
+WEIGHT_SHIFT_RANGES = {
+    'normal': (0, 5),  # 正常范围
+    'mild': (5, 11),  # 轻度异常
+    'moderate': (11, 15),  # 中度异常
+    'severe': (15, float('inf'))  # 重度异常
+}
+
+def get_severity_level(value, ranges):
+    """根据数值确定异常程度"""
+    if value is None:
+        return None
+        
+    if ranges['normal'][0] <= value <= ranges['normal'][1]:
+        return "正常"
+    elif ranges.get('mild') and ranges['mild'][0] <= value <= ranges['mild'][1]:
+        return "轻度异常"
+    elif ranges.get('moderate') and ranges['moderate'][0] <= value <= ranges['moderate'][1]:
+        return "中度异常"
+    else:
+        return "重度异常" 
