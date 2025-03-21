@@ -1,0 +1,15 @@
+-r requirements/build.txt
+-r requirements/runtime.txt
+-r requirements/tests.txt
+-r requirements/optional.txt
+
+streamlit>=1.24.0
+opencv-python>=4.7.0
+numpy>=1.24.0
+mmcv>=2.0.0
+mmengine>=0.7.0
+mmdet>=3.0.0
+mmpose>=1.0.0
+json_tricks>=3.16.0
+torch>=1.6.0
+torchvision>=0.7.0
